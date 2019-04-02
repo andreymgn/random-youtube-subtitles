@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 def get_ids_api(api_key):
     count = 50
-    rnd = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(4))
+    rnd = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(4))
 
     urlData = "https://www.googleapis.com/youtube/v3/search?key={}&maxResults={}&part=snippet&type=video&videoCaption=closedCaption&q={}".format(api_key, count, rnd)
     webURL = urllib.request.urlopen(urlData)
@@ -41,14 +41,17 @@ def get_ids_scrape():
             ids.add(id)
     return ids
 
-def get_cc(ids):
+def get_cc(ids, langs):
     opts = {
         'skip_download': True,
         'writesubtitles': True,
-        'subtitleslangs': ['en'],
+        'subtitleslangs': langs.split(','),
         'outtmpl': 'subs/%(id)s'
     }
     urls = ['https://youtube.com/watch?v={}'.format(id) for id in ids]
     ydl = YoutubeDL(opts)
-    return ydl.download(urls)
+    try:
+        ydl.download(urls)
+    except Exception as e:
+        print('Exception when downloading:', e)
 
